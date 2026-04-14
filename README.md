@@ -1,41 +1,35 @@
 # Game Admin Dashboard
 
-A complete Game Admin Dashboard system with:
-- Backend: Node.js, Express, Mongoose
-- Frontend: React, Vite, TypeScript, TailwindCSS, Axios
+Dự án này là một hệ thống quản lý admin game gồm:
+- Backend: Node.js + Express + Mongoose
+- Frontend: React + Vite + TypeScript + TailwindCSS + Axios
 - Database: MongoDB local
 
-## 1. MongoDB Local Setup
+## 1. Chuẩn bị môi trường
 
-### Install MongoDB Community Server
-1. Download MongoDB Community Server from https://www.mongodb.com/try/download/community
-2. Install using the MSI installer.
-3. During install, choose "Complete" and enable "Install MongoDB as a Service" if you want it to start automatically.
+### Cài đặt MongoDB
+1. Tải MongoDB Community Server từ: https://www.mongodb.com/try/download/community
+2. Cài đặt bằng MSI installer.
+3. Chọn `Complete` và bật `Install MongoDB as a Service` nếu muốn chạy tự động.
 
-### Run MongoDB on localhost:27017
-- If installed as a service, MongoDB starts automatically.
-- If starting manually, run:
+### Khởi động MongoDB trên localhost:27017
+- Nếu cài dưới dạng service thì MongoDB sẽ chạy tự động.
+- Nếu chạy thủ công, mở PowerShell và dùng lệnh (điều chỉnh đường dẫn nếu cần):
 
 ```powershell
 "C:\Program Files\MongoDB\Server\<version>\bin\mongod.exe" --dbpath "C:\data\db"
 ```
 
-- Verify by opening MongoDB Shell or Compass and connecting to:
+### Kết nối kiểm tra
+- Mở MongoDB Compass hoặc Mongo Shell.
+- Kết nối với:
 
 ```text
 mongodb://localhost:27017
 ```
 
-### Connect using MongoDB Compass
-1. Open MongoDB Compass.
-2. Create a new connection.
-3. Use connection string: `mongodb://localhost:27017`.
-4. Click "Connect".
-5. The database `gamedb` will be created automatically when the backend writes data.
-
-### Allow other team members to connect
-- Use your local machine IP address, for example `192.168.1.55:27017`.
-- Configure MongoDB `bindIp` in `mongod.cfg`:
+### Lưu ý khi mở cho mạng LAN
+- Nếu muốn truy cập từ máy khác, cấu hình `bindIp` trong `mongod.cfg`:
 
 ```yaml
 net:
@@ -43,118 +37,116 @@ net:
   bindIp: 0.0.0.0
 ```
 
-- Restart MongoDB service after changing `mongod.cfg`.
-- Open port 27017 in Windows Firewall:
-  - Search "Windows Defender Firewall"
-  - Advanced settings > Inbound Rules > New Rule
-  - Port > TCP > Specific local port: `27017`
-  - Allow the connection > apply to Private network
-
-- Team members can then connect from another machine using:
+- Mở port `27017` trong Windows Firewall cho mạng Private.
+- Khi đó máy khác có thể kết nối bằng:
 
 ```text
-mongodb://192.168.x.x:27017/gamedb
+mongodb://<IP-máy-chủ>:27017/gamedb
 ```
 
-- The backend is configured to listen on all network interfaces by default, so it can serve LAN clients when `PORT` is open.
+## 2. Chạy backend
 
-## 2. Backend Setup
-
-### Install dependencies
+### Cài đặt phụ thuộc
 
 ```powershell
 cd backend
 npm install
 ```
 
-### Backend folder structure
-
-- `config/` - MongoDB connection code
-- `models/` - Mongoose schemas
-- `controllers/` - request handlers
-- `routes/` - API routes
-- `data/` - sample data seed
-
-### MongoDB connection string
-- Default: `mongodb://localhost:27017/gamedb`
-- LAN support: `mongodb://192.168.x.x:27017/gamedb`
-
-Use `.env`:
+### Biến môi trường
+Backend dùng biến `MONGO_CONNECTION_URI` nếu có, hoặc mặc định là:
 
 ```text
-MONGO_HOST=localhost
-MONGO_PORT=27017
-MONGO_DB=gamedb
+mongodb://localhost:27017/gamedb
+```
+
+Tạo file `backend/.env` nếu cần:
+
+```text
+MONGO_CONNECTION_URI=mongodb://localhost:27017/gamedb
 PORT=5000
 ```
 
-### Run backend
+### Khởi chạy backend
 
 ```powershell
 npm run dev
 ```
 
-The backend runs on `http://localhost:5000`.
-### Frontend API URL
-- Set `VITE_API_URL=http://localhost:5000` to connect locally.
-- For LAN access, set `VITE_API_URL=http://192.168.x.x:5000` in `frontend/.env`.
-## 3. Backend APIs
+- Máy chủ backend mặc định chạy tại: `http://localhost:5000`
+- Server bind tới `0.0.0.0`, nên có thể truy cập từ mạng LAN nếu port `5000` mở.
 
-### Users
-- `GET /users` - list users with search, filter, pagination
-- `PATCH /users/:id` - update user details
+## 3. Chạy frontend
 
-### Items
-- `GET /items` - list items with search, filter, pagination
-- `GET /items/:id` - get item details
-- `POST /items` - create item
-- `PATCH /items/:id` - update item
-- `DELETE /items/:id` - delete item
-
-### Orders
-- `GET /orders` - list orders
-
-### Payments
-- `GET /payments` - list payments
-
-### Dashboard
-- `GET /stats/revenue` - revenue metrics
-- `GET /stats/users` - user metrics
-
-## 4. Frontend Setup
-
-### Install dependencies
+### Cài đặt phụ thuộc
 
 ```powershell
 cd frontend
 npm install
 ```
 
-### Run frontend
+### Biến môi trường frontend
+Nếu cần cấu hình API URL, tạo file `frontend/.env` với nội dung:
+
+```text
+VITE_API_URL=http://localhost:5000
+```
+
+### Khởi chạy frontend
 
 ```powershell
 npm run dev
 ```
 
-Open the URL shown by Vite (usually `http://localhost:5173`).
+- Mở URL mà Vite cung cấp, thường là `http://localhost:5173`.
 
-### App features
-- Dashboard with revenue and user stats
-- Users page with search, filter, pagination
-- Items page with search, filter, pagination
-- Orders and payments views
-- Loading UI and error-safe requests
+## 4. Các tính năng chính
 
-## 5. Notes and Extra
+- Dashboard hiển thị chỉ số doanh thu và người dùng
+- Trang Users: tìm kiếm, lọc, phân trang
+- Trang Items: tìm kiếm, lọc, phân trang, tạo/sửa/xóa
+- Trang Orders: xem danh sách đơn hàng
+- Trang Payments: xem danh sách thanh toán
 
-- The backend seeds sample data automatically when the MongoDB collection is empty.
-- If you want the backend to use a LAN IP for MongoDB, set `MONGO_HOST` in `.env` to your machine IP.
-- If connecting from another machine, ensure `bindIp: 0.0.0.0` and port `27017` is open.
+## 5. API chính
 
-## 6. Project Files
+### Users
+- `GET /users` - lấy danh sách người dùng
+- `PATCH /users/:id` - cập nhật thông tin người dùng
 
-- `backend/` - Express API server
-- `frontend/` - React admin panel
-- `backend/.env.example` - sample environment file
+### Items
+- `GET /items` - lấy danh sách item
+- `GET /items/:id` - lấy chi tiết item
+- `POST /items` - tạo item mới
+- `PATCH /items/:id` - cập nhật item
+- `DELETE /items/:id` - xóa item
 
-Enjoy the Game Admin Dashboard!
+### Orders
+- `GET /orders` - lấy danh sách đơn hàng
+
+### Payments
+- `GET /payments` - lấy danh sách thanh toán
+
+### Stats
+- `GET /stats/revenue` - thống kê doanh thu
+- `GET /stats/users` - thống kê người dùng
+
+## 6. Lưu ý thêm
+
+- Khi backend kết nối MongoDB thành công, nếu database chưa có dữ liệu thì hệ thống sẽ tự seed dữ liệu mẫu.
+- Nếu dùng trong mạng LAN, hãy đảm bảo `MONGO_CONNECTION_URI` trỏ đúng tới IP/Máy chủ MongoDB và `VITE_API_URL` trỏ đúng tới backend.
+- Nếu chỉ chạy trên máy local, giữ nguyên cấu hình mặc định.
+
+## 7. Cấu trúc thư mục
+
+- `backend/` - mã nguồn server Express
+- `frontend/` - mã nguồn giao diện React
+- `backend/config/` - cấu hình MongoDB
+- `backend/routes/` - định nghĩa route API
+- `backend/controllers/` - xử lý request
+- `backend/models/` - schema Mongoose
+- `backend/data/sampleData.js` - dữ liệu mẫu
+
+---
+
+Chúc bạn setup thành công và deploy dự án lên GitHub dễ dàng!
